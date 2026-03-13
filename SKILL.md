@@ -2,10 +2,12 @@
 name: jubjub
 description: Publish content across TikTok, Instagram, YouTube, LinkedIn and Vimeo. Manage team workflows, collaborate with your team, and track verified publish history.
 version: 1.0.0
-requires:
-  env:
-    - JUBJUB_API_KEY
-primaryEnv: JUBJUB_API_KEY
+metadata:
+  openclaw:
+    requires:
+      env:
+        - JUBJUB_API_KEY
+    primaryEnv: JUBJUB_API_KEY
 ---
 
 # JubJub — SKILL.md
