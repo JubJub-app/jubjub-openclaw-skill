@@ -3,7 +3,8 @@ name: jubjub
 description: Publish content across TikTok, Instagram, YouTube, Facebook, LinkedIn and Vimeo. Manage team workflows, collaborate with your team, and track verified publish history.
 version: 1.0.0
 metadata:
-  openclaw:
+  clawdbot:
+    emoji: "🎬"
     requires:
       env:
         - JUBJUB_API_KEY
@@ -14,361 +15,201 @@ metadata:
 
 ## 1. OVERVIEW
 
-JubJub is a content publishing and team collaboration platform for creators. It lets users create workspaces, upload video content, collaborate with team members through threaded messaging and notifications, and publish content across multiple social platforms — TikTok, Instagram, YouTube, Facebook, LinkedIn, and Vimeo — from a single workflow. Every publish action creates a verified on-chain record on Base, giving creators immutable proof of ownership and publish history. The platform supports team-based workflows with role-based access, shared credentials, workspace membership, and approval flows for launches.
+JubJub is a content publishing and team collaboration platform for creators. Upload video content, collaborate with team members through threaded messaging and notifications, and publish across multiple social platforms — TikTok, Instagram, YouTube, Facebook, LinkedIn, and Vimeo — from a single workflow. Every publish creates a verified on-chain record on Base, giving creators immutable proof of ownership and publish history.
+
+Supported platforms: TikTok, Instagram, YouTube, LinkedIn, Facebook, Vimeo. JubJub does not currently support X/Twitter.
 
 ## 2. AUTHENTICATION
-
-Authenticate using an API key passed as a request header.
 
 - **Get your key:** jubjubapp.com → Profile → Agents → Create New Agent
 - **Header:** `X-JubJub-Agent-Key: jjagent_YOUR_KEY`
 - **Base URL:** `https://api.jubjubapp.com`
 
-All endpoints below are relative to the base URL unless an absolute path is shown.
+## 3. PRICING
 
-## PRICING
+JubJub uses a three-tier pricing model. All plans include multi-platform publishing and on-chain records. Publishing and platform access are never restricted by plan.
 
-JubJub is a paid service.
+| Plan | Price | Key features |
+|------|-------|--------------|
+| Free | $0 | 7-day workspace TTL, files deleted with workspace, no collections, 10 AI calls/min |
+| Creator | $39/month AUD | Permanent workspaces and storage, collections, 60 AI calls/min |
+| Studio | $199/month AUD | Everything in Creator, 300 AI calls/min, team seats, priority support |
 
-| Plan | Price | Includes |
-|------|-------|----------|
-| Creator | $25/month | Multi-platform publishing, on-chain records, MCP access |
-| Studio | $129/month | Higher volume, team seats, priority support |
+Sign up: studio.jubjubapp.com/auth?tab=signup
+Creator plan: studio.jubjubapp.com/checkout?plan=creator
+Studio plan: studio.jubjubapp.com/checkout?plan=studio
 
-👉 New account: studio.jubjubapp.com/auth?tab=signup
-👉 Creator — $25/month: studio.jubjubapp.com/checkout?plan=creator
-👉 Studio — $129/month: studio.jubjubapp.com/checkout?plan=studio
+If a publish fails due to plan limits, give the user the relevant upgrade link above.
 
-If a publish fails due to plan limits, give the user the relevant upgrade link above. Upgrades take effect immediately.
+## 4. TOOLS
 
-## 3. ENDPOINTS
+### Workspaces (5 tools)
 
-### Workspaces & Teams
+| Tool | Description |
+|------|-------------|
+| `workspaces_create` | Create a new workspace. Required: `name`. Optional: `description`. |
+| `workspaces_list` | List workspaces for the current user. Optional filters: `team_id`, `role`, `limit`, `offset`. |
+| `workspaces_get` | Get workspace details. Required: `workspace_id`. |
+| `workspaces_update` | Update workspace name or description. Required: `workspace_id`. Optional: `name`, `description`. |
+| `workspaces_delete` | Delete a workspace. Required: `workspace_id`. Destructive. |
 
-#### Workspaces
+### Content (5 tools)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/workspaces` | Create a new workspace |
-| | **Required:** `name` (string) | |
-| | **Optional:** `description` (string), `team_id` (string) | |
-| GET | `/v2/workspaces` | List workspaces for current user |
-| | **Optional:** `team_id` (query, string), `role` (query, string), `limit` (query, int, default 50), `offset` (query, int, default 0) | |
-| GET | `/v2/workspaces/{workspace_id}` | Get workspace details |
-| | **Required:** `workspace_id` (path, string) | |
-| PATCH | `/v2/workspaces/{workspace_id}` | Update workspace name or description |
-| | **Required:** `workspace_id` (path, string) | |
-| | **Optional:** `name` (string), `description` (string) | |
-| DELETE | `/v2/workspaces/{workspace_id}` | Delete a workspace |
-| | **Required:** `workspace_id` (path, string) | |
-| POST | `/v2/workspaces/{workspace_id}/members` | Add a member to workspace |
-| | **Required:** `workspace_id` (path, string), `profile_id` (body, string), `role` (body, string) | |
-| GET | `/v2/workspaces/{workspace_id}/members` | List workspace members |
-| | **Required:** `workspace_id` (path, string) | |
-| PATCH | `/v2/workspaces/{workspace_id}/members/{member_id}` | Update member role |
-| | **Required:** `workspace_id` (path, string), `member_id` (path, string), `role` (body, string) | |
-| DELETE | `/v2/workspaces/{workspace_id}/members/{member_id}` | Remove a workspace member |
-| | **Required:** `workspace_id` (path, string), `member_id` (path, string) | |
-| GET | `/v2/workspaces/{workspace_id}/stats` | Get workspace statistics |
-| | **Required:** `workspace_id` (path, string) | |
-| POST | `/v2/workspaces/batch-delete` | Delete multiple workspaces |
-| | **Required:** `workspace_ids` (body, list[string]) | |
+| Tool | Description |
+|------|-------------|
+| `contents_create` | Create a content item. Required: `workspace_id`, `title`, `video_id`. Optional: `description`, `thumbnail_id`, `tags`, `language`, `is_made_for_kids`. |
+| `contents_list` | List content in a workspace. Required: `workspace_id`. Optional: `status`, `limit`, `offset`. |
+| `contents_get` | Get content details. Required: `content_id`. |
+| `contents_update` | Update content fields. Required: `content_id`. Optional: `title`, `description`, `tags`, `video_id`, `thumbnail_id`, `language`, `is_made_for_kids`. |
+| `contents_delete` | Delete content and associated resources. Required: `content_id`. Optional: `force` (bool). Destructive. |
 
-#### Teams
+### Platform Configs (3 tools)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/teams` | Create a new team |
-| | **Required:** `name` (body, string) | |
-| | **Optional:** `description` (body, string) | |
-| GET | `/v2/teams` | List teams for current user |
-| | **Optional:** `limit` (query, int, default 50), `offset` (query, int, default 0) | |
-| GET | `/v2/teams/{team_id}` | Get team details |
-| | **Required:** `team_id` (path, string) | |
-| PATCH | `/v2/teams/{team_id}` | Update team name or description |
-| | **Required:** `team_id` (path, string) | |
-| | **Optional:** `name` (string), `description` (string) | |
-| DELETE | `/v2/teams/{team_id}` | Delete a team |
-| | **Required:** `team_id` (path, string) | |
-| POST | `/v2/teams/{team_id}/members` | Add a team member |
-| | **Required:** `team_id` (path, string), `profile_id` (body, string), `role` (body, string) | |
-| GET | `/v2/teams/{team_id}/members` | List team members |
-| | **Required:** `team_id` (path, string) | |
-| PATCH | `/v2/teams/{team_id}/members/{member_id}` | Update member role |
-| | **Required:** `team_id` (path, string), `member_id` (path, string), `role` (body, string) | |
-| DELETE | `/v2/teams/{team_id}/members/{member_id}` | Remove a team member |
-| | **Required:** `team_id` (path, string), `member_id` (path, string) | |
-| POST | `/v2/teams/{team_id}/transfer-ownership` | Transfer team ownership |
-| | **Required:** `team_id` (path, string), `new_owner_id` (body, string) | |
-| GET | `/v2/teams/{team_id}/stats` | Get team statistics |
-| | **Required:** `team_id` (path, string) | |
-| GET | `/v2/teams/with-workspaces` | List teams with their workspaces |
-| | **Optional:** `limit` (query, int, default 50), `offset` (query, int, default 0) | |
+| Tool | Description |
+|------|-------------|
+| `platform_configs_create` | Create a platform configuration linking content to a credential. Required: `content_id`, `platform` (tiktok/instagram/youtube/facebook/linkedin/vimeo), `credential_id`. Optional: `settings`, `visibility`/`privacy`. |
+| `platform_configs_list` | List platform configs for a content item. Optional: `content_id`. |
+| `platform_configs_update` | Update platform config settings. Required: `config_id`. Optional: `settings`. |
 
-#### Team Invites
+### Launches (5 tools)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/teams/{team_id}/invites` | Invite someone to a team by email |
-| | **Required:** `team_id` (path, string), `invitee_email` (body, string), `role` (body, string) | |
-| GET | `/v2/teams/{team_id}/invites` | List invitations for a team |
-| | **Required:** `team_id` (path, string) | |
-| | **Optional:** `status` (query, string) | |
-| GET | `/v2/invites/pending` | List pending invites for current user |
-| POST | `/v2/invites/{invite_id}/accept` | Accept a team invitation |
-| | **Required:** `invite_id` (path, string) | |
-| POST | `/v2/invites/{invite_id}/reject` | Reject a team invitation |
-| | **Required:** `invite_id` (path, string) | |
+| Tool | Description |
+|------|-------------|
+| `launches_create` | Create a launch to publish or schedule content. Required: `content_id`, `platform_config_ids` (array). Optional: `scheduled_for` (ISO 8601 with timezone offset). |
+| `launches_get` | Get launch details including per-platform status. Required: `launch_id`. |
+| `launches_list` | List launches. Required: `workspace_id`. Optional: `limit`, `offset`. |
+| `launches_cancel` | Cancel a scheduled launch. Required: `launch_id`. Destructive. |
+| `launches_retry` | Retry a failed launch. Required: `launch_id`. Optional: `data` (object). |
 
-#### Shared Credentials
+### Teams (14 tools)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/teams/{team_id}/credentials/share` | Share a platform credential with team |
-| | **Required:** `team_id` (path, string), `credential_id` (body, string) | |
-| | **Optional:** `can_revoke` (body, bool) | |
-| GET | `/v2/teams/{team_id}/credentials` | List team's shared credentials |
-| | **Required:** `team_id` (path, string) | |
-| | **Optional:** `active_only` (query, bool) | |
-| POST | `/v2/teams/{team_id}/credentials/{shared_credential_id}/revoke` | Revoke a shared credential |
-| | **Required:** `team_id` (path, string), `shared_credential_id` (path, string) | |
-| GET | `/v2/teams/{team_id}/credentials/available` | List credentials available to share |
-| | **Required:** `team_id` (path, string) | |
+| Tool | Description |
+|------|-------------|
+| `teams_create` | Create a new team. Required: `name`. Optional: `description`. |
+| `teams_list` | List teams for the current user. |
+| `teams_get` | Get team details. Required: `team_id`. |
+| `teams_update` | Update team name, description, or avatar. Required: `team_id`. Optional: `name`, `description`, `avatar_url`. |
+| `teams_delete` | Delete a team. Required: `team_id`. Destructive. |
+| `teams_transfer` | Transfer team ownership. Required: `team_id`, `new_owner_profile_id`. Destructive. |
+| `teams_members_list` | List team members. Required: `team_id`. |
+| `teams_members_update` | Update a member's role. Required: `team_id`, `member_profile_id`, `role`. Optional: `custom_permissions`. |
+| `teams_members_remove` | Remove a member from a team. Required: `team_id`, `member_profile_id`. Destructive. |
+| `teams_leave` | Leave a team. Required: `team_id`. Destructive. |
+| `teams_permissions` | Get your permissions for a team. Required: `team_id`. |
+| `teams_stats` | Get team statistics. Required: `team_id`. |
+| `teams_search` | Search teams by name. Required: `query`. |
+| `teams_activity` | Get recent team activity. Required: `team_id`. |
 
-### Content
+### Team Invites (6 tools)
 
-#### Content Items
+| Tool | Description |
+|------|-------------|
+| `teams_invite` | Invite someone to a team by email. Required: `team_id`, `invitee_email`, `role`. Optional: `custom_permissions`. |
+| `teams_invites_list` | List invitations for a team. Required: `team_id`. Optional: `status`. |
+| `teams_invites_cancel` | Cancel a pending invite. Required: `team_id`, `invite_id`. Destructive. |
+| `teams_invites_pending` | List pending invites for the current user. |
+| `teams_invites_accept` | Accept a team invitation. Required: `invite_id`. |
+| `teams_invites_reject` | Reject a team invitation. Required: `invite_id`. |
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/contents` | Create a new content item |
-| | **Required:** `workspace_id` (body, string), `title` (body, string), `video_id` (body, string) | |
-| | **Optional:** `description` (body, string), `thumbnail_id` (body, string), `folder_id` (body, string), `tags` (body, list[string]), `language` (body, string), `is_made_for_kids` (body, bool) | |
-| GET | `/v2/contents` | List content items in a workspace |
-| | **Required:** `workspace_id` (query, string) | |
-| | **Optional:** `status` (query, string: "draft"\|"publishing"\|"published"), `folder_id` (query, string), `limit` (query, int, default 50), `offset` (query, int, default 0) | |
-| GET | `/v2/contents/{content_id}` | Get content details |
-| | **Required:** `content_id` (path, string) | |
-| PATCH | `/v2/contents/{content_id}` | Update content fields |
-| | **Required:** `content_id` (path, string) | |
-| | **Optional:** `title` (string), `description` (string), `tags` (list[string]), `video_id` (string), `thumbnail_id` (string), `folder_id` (string), `language` (string), `is_made_for_kids` (bool), `status` (string) | |
-| DELETE | `/v2/contents/{content_id}` | Delete content and associated resources |
-| | **Required:** `content_id` (path, string) | |
-| | **Optional:** `force` (query, bool) | |
-| GET | `/v2/contents/{content_id}/full` | Get content with all platform configurations |
-| | **Required:** `content_id` (path, string) | |
-| | **Optional:** `expand` (query, string: "media") | |
-| POST | `/v2/contents/{content_id}/targets` | Add platform targets to content |
-| | **Required:** `content_id` (path, string), `credential_ids` (body, list[string]) | |
-| GET | `/v2/contents/{content_id}/targets` | List platform targets for content |
-| | **Required:** `content_id` (path, string) | |
-| DELETE | `/v2/contents/{content_id}/targets/{credential_id}` | Remove a platform target |
-| | **Required:** `content_id` (path, string), `credential_id` (path, string) | |
-| POST | `/v2/contents/{content_id}/validate-configs` | Validate platform configurations |
-| | **Required:** `content_id` (path, string) | |
-| | **Optional:** `config_ids` (body, list[string]) | |
-| POST | `/v2/contents/{content_id}/apply-general-settings` | Apply content settings to platform configs |
-| | **Required:** `content_id` (path, string), `fields` (body, list[string]) | |
-| | **Optional:** `config_ids` (body, list[string]), `overwrite_custom` (body, bool) | |
+### Team Workspaces (3 tools)
 
-#### Media
+| Tool | Description |
+|------|-------------|
+| `teams_workspaces_link` | Link an existing workspace to a team. Required: `team_id`, `workspace_id`. |
+| `teams_workspaces_unlink` | Unlink a workspace from a team. Required: `team_id`, `workspace_id`. Destructive. |
+| `teams_workspaces_list` | List workspaces linked to a team. Required: `team_id`. |
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/media/upload/request` | Get a signed URL for direct media upload |
-| | **Required:** `filename` (body, string), `workspace_id` (body, string) | |
-| | **Optional:** `content_type` (body, string) | |
-| POST | `/v2/media/{media_id}/upload/complete` | Confirm upload completion |
-| | **Required:** `media_id` (path, string) | |
-| GET | `/v2/media` | List media in a workspace |
-| | **Required:** `workspace_id` (query, string) | |
-| | **Optional:** `media_type` (query, string), `status` (query, string), `limit` (query, int, default 50), `offset` (query, int, default 0) | |
-| GET | `/v2/media/{media_id}` | Get media details |
-| | **Required:** `media_id` (path, string) | |
-| DELETE | `/v2/media/{media_id}` | Delete media |
-| | **Required:** `media_id` (path, string) | |
-| POST | `/v2/media/bulk-rename` | Bulk rename media files |
-| | **Required:** `renames` (body, list[object] — each with `media_id` (string) and `new_filename` (string)) | |
-| POST | `/v2/media/ingest-url` | Ingest media from a public URL |
-| | **Required:** `url` (body, string), `workspace_id` (body, string) | |
-| | **Optional:** `filename` (body, string) | |
+### Communication (6 tools)
 
-#### Upload Sessions
+| Tool | Description |
+|------|-------------|
+| `communication_create` | Send a message in a scope (team, workspace, content, media, or collection). Required: `scope_type`, `scope_id`, `body`. Optional: `parent_message_id`, `thread_root_id`, `message_type`, `decision_type`, `mentions`, `metadata`. |
+| `communication_list` | List messages by scope. Required: `scope_type`, `scope_id`. Optional: `limit`, `cursor`, `thread_root_id`. |
+| `communication_get` | Get a single message by ID. Required: `message_id`. Useful for fetching messages referenced in notifications without knowing the scope. |
+| `communication_edit` | Edit a message. Required: `message_id`. Optional: `body`, `mentions`, `metadata`. |
+| `communication_delete` | Soft-delete a message. Required: `message_id`. Destructive. |
+| `communication_resolve` | Resolve a decision message (approve/reject/withdraw). Required: `message_id`, `decision_status`. Optional: `resolution`. |
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/uploads/link` | Create an upload session link (returns a URL for browser-based upload) |
-| | **Required:** `workspace_id` (body, string) | |
-| GET | `/v2/uploads/sessions/{id}` | Get upload session status and groupings |
-| | **Required:** `id` (path, string) | |
-| POST | `/v2/uploads/sessions/{id}/infer-groupings` | Infer content groupings from uploaded files |
-| | **Required:** `id` (path, string) | |
-| POST | `/v2/uploads/sessions/{id}/confirm-groupings` | Confirm inferred groupings |
-| | **Required:** `id` (path, string), `groupings` (body, list[object]) | |
+### Notifications (2 tools)
 
-#### Credentials
+| Tool | Description |
+|------|-------------|
+| `notifications_list` | List notifications for the current user. Optional: `cursor`, `limit`, `unread_only`. |
+| `notifications_mark_read` | Mark a notification as read. Required: `notification_id`. |
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v2/credentials` | List all connected platform credentials |
-| GET | `/v2/credentials/by-platform` | List credentials grouped by platform |
-| POST | `/v2/credentials/oauth/{platform}/initiate` | Initiate OAuth flow for a platform |
-| | **Required:** `platform` (path, string) | |
-| POST | `/v2/credentials/oauth/{platform}/callback` | Handle OAuth callback |
-| | **Required:** `platform` (path, string) | |
-| PATCH | `/v2/credentials/{credential_id}` | Update a credential |
-| | **Required:** `credential_id` (path, string) | |
-| DELETE | `/v2/credentials/{credential_id}` | Delete a credential |
-| | **Required:** `credential_id` (path, string) | |
+### Credentials (3 tools)
 
-### Publishing
+| Tool | Description |
+|------|-------------|
+| `credentials_list` | List all connected platform credentials. Optional: `platform` filter. |
+| `credentials_list_by_platform` | List credentials grouped by platform. Returns all platforms with their connected accounts. |
+| `credentials_connect` | Start OAuth flow to connect a platform account. Required: `platform` (tiktok/instagram/youtube/facebook/linkedin/vimeo). Returns an auth URL the user must open in their browser. |
 
-#### Platform Configs
+### Profiles (3 tools)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/platform-configs` | Create a platform configuration for content |
-| | **Required:** `content_id` (body, string), `platform` (body, string), `credential_id` (body, string) | |
-| | **Optional:** `settings` (body, object) | |
-| GET | `/v2/platform-configs` | List platform configs for a content item |
-| | **Required:** `content_id` (query, string) | |
-| | **Optional:** `status` (query, string), `limit` (query, int, default 50), `offset` (query, int, default 0) | |
-| GET | `/v2/platform-configs/{config_id}` | Get platform config details |
-| | **Required:** `config_id` (path, string) | |
-| PATCH | `/v2/platform-configs/{config_id}` | Update platform config settings |
-| | **Required:** `config_id` (path, string), `settings` (body, object) | |
-| | **Optional:** `status` (body, string) | |
-| DELETE | `/v2/platform-configs/{config_id}` | Delete a platform config |
-| | **Required:** `config_id` (path, string) | |
-| POST | `/v2/platform-configs/bulk/create` | Bulk create platform configs |
-| | **Required:** `content_id` (body, string), `configs` (body, list[object]) | |
-| POST | `/v2/platform-configs/bulk/update` | Bulk update platform configs |
-| | **Required:** `config_ids` (body, list[string]), `settings` (body, object) | |
-| GET | `/v2/platform-configs/schemas/all` | Get all platform requirement schemas |
-| GET | `/v2/platform-configs/requirements/{platform}` | Get requirements for a specific platform |
-| | **Required:** `platform` (path, string) | |
+| Tool | Description |
+|------|-------------|
+| `profiles_search` | Look up a user profile by email. Required: `email`. Returns profile_id for use in team and member operations. |
+| `profiles_get` | Get a user profile by ID. Required: `profile_id`. |
+| `profiles_batch` | Batch get multiple profiles. Required: `ids` (array or comma-separated string, max 50). |
 
-#### Platform Defaults
+### Media & Uploads (5 tools)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v2/platform-defaults/{credential_id}` | Load saved default settings for a credential |
-| | **Required:** `credential_id` (path, string) | |
-| PUT | `/v2/platform-defaults/{credential_id}` | Save default settings for a credential |
-| | **Required:** `credential_id` (path, string), `settings` (body, object) | |
-| DELETE | `/v2/platform-defaults/{credential_id}` | Remove saved defaults for a credential |
-| | **Required:** `credential_id` (path, string) | |
+| Tool | Description |
+|------|-------------|
+| `media_ingest_url` | Ingest media from a public URL (server-side fetch). Required: `url`, `workspace_id`. Optional: `filename`. |
+| `upload_sessions_create_link` | Create a browser upload link. Required: `workspace_id`. Returns a URL the user must open to upload files. |
+| `upload_sessions_get` | Get upload session status and groupings. Required: `upload_session_id`, `token`. Poll until status reaches `groupings_inferred`. |
+| `upload_sessions_infer_groupings` | Trigger grouping inference on an upload session. Required: `upload_session_id`, `token`. |
+| `upload_sessions_confirm_groupings` | Confirm inferred groupings. Required: `upload_session_id`, `token`, `groupings`. |
 
-#### Launches
+### Collections (3 tools)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/launches` | Create a launch (publish or schedule content) |
-| | **Required:** `content_id` (body, string), `platform_config_ids` (body, list[string]) | |
-| | **Optional:** `scheduled_for` (body, string — ISO 8601 datetime with timezone offset) | |
-| GET | `/v2/launches` | List launches |
-| | **Optional:** `workspace_id` (query, string), `workspace_ids` (query, list[string]), `status` (query, string), `limit` (query, int, default 50), `offset` (query, int, default 0) | |
-| GET | `/v2/launches/{launch_id}` | Get launch details including per-platform status |
-| | **Required:** `launch_id` (path, string) | |
-| POST | `/v2/launches/{launch_id}/validate` | Validate launch readiness before executing |
-| | **Required:** `launch_id` (path, string) | |
-| | **Optional:** `platform_config_ids` (body, list[string]) | |
-| POST | `/v2/launches/{launch_id}/execute` | Execute a pending launch immediately |
-| | **Required:** `launch_id` (path, string) | |
-| POST | `/v2/launches/{launch_id}/retry` | Retry a failed launch |
-| | **Required:** `launch_id` (path, string) | |
-| | **Optional:** `platform_launch_ids` (body, list[string]) | |
-| DELETE | `/v2/launches/{launch_id}` | Cancel a scheduled launch |
-| | **Required:** `launch_id` (path, string) | |
+| Tool | Description |
+|------|-------------|
+| `collections_create` | Create a collection in a workspace. Required: `workspace_id`, `name`. Optional: `description`. |
+| `collections_list` | List collections in a workspace. Required: `workspace_id`. |
+| `collections_get` | Get collection details. Required: `collection_id`. |
 
-#### Approvals
+## 5. KEY CONCEPTS
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/approvals/{approval_id}/decide` | Approve or reject a launch approval request |
-| | **Required:** `approval_id` (path, string), `decision` (body, string: "approved"\|"rejected") | |
-| | **Optional:** `reason` (body, string) | |
-| GET | `/v2/approvals/pending` | List pending approvals for current user |
-| GET | `/v2/approvals/launch/{launch_id}` | List approvals for a specific launch |
-| | **Required:** `launch_id` (path, string) | |
+- **Workspace** — Container for content, media, and collaboration. Created unlinked; link to a team via `teams_workspaces_link`.
+- **Content item** — A single publishable piece. One content item maps to one publishing event. Requires a `video_id` from an uploaded file.
+- **Platform config** — Links a content item to a platform credential with platform-specific settings. Create one per platform, all on the same content item.
+- **Launch** — The publish event. Takes a `content_id` and `platform_config_ids`. Can be immediate or scheduled via `scheduled_for`.
+- **On-chain record** — Every launch creates a verified record on Base blockchain for proof of ownership.
 
-### Collaboration
+## 6. COMMON WORKFLOWS
 
-#### Collections
+**Publish a video:**
+1. `workspaces_create` → `upload_sessions_create_link` → user uploads → poll `upload_sessions_get` → `contents_create` with `video_id` from groupings → `platform_configs_create` per platform → `launches_create`
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/collections` | Create a collection |
-| | **Required:** `workspace_id` (body, string), `name` (body, string) | |
-| | **Optional:** `description` (body, string) | |
-| GET | `/v2/collections` | List collections in a workspace |
-| | **Required:** `workspace_id` (query, string) | |
-| GET | `/v2/collections/{collection_id}` | Get collection details |
-| | **Required:** `collection_id` (path, string) | |
+**Invite a team member:**
+1. `teams_invite` with their email → they accept via `teams_invites_accept`
 
-#### Communication
+**Connect a platform:**
+1. `credentials_connect` → user opens auth URL in browser → poll `credentials_list` to confirm
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/v2/communication` | Create a message in a workspace or content scope |
-| | **Required:** `scope_type` (body, string), `scope_id` (body, string), `body` (body, string) | |
-| | **Optional:** `parent_message_id` (body, string), `thread_root_id` (body, string), `message_type` (body, string), `decision_type` (body, string), `mentions` (body, list[object]), `metadata` (body, object) | |
-| GET | `/v2/communication` | List messages by scope |
-| | **Required:** `scope_type` (query, string), `scope_id` (query, string) | |
-| | **Optional:** `cursor` (query, string), `limit` (query, int, default 50), `thread_root_id` (query, string), `collection_id` (query, string) | |
-| GET | `/v2/communication/{message_id}` | Get a single message |
-| | **Required:** `message_id` (path, string) | |
-| PATCH | `/v2/communication/{message_id}` | Edit a message |
-| | **Required:** `message_id` (path, string) | |
-| | **Optional:** `body` (string), `mentions` (list[object]), `metadata` (object) | |
-| DELETE | `/v2/communication/{message_id}` | Soft-delete a message |
-| | **Required:** `message_id` (path, string) | |
-| PATCH | `/v2/communication/{message_id}/resolve` | Resolve a decision message |
-| | **Required:** `message_id` (path, string), `decision_status` (body, string) | |
-| | **Optional:** `resolution` (body, string) | |
-
-#### Notifications
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v2/notifications` | List notifications for current user |
-| | **Optional:** `cursor` (query, string), `limit` (query, int, default 50), `unread_only` (query, bool) | |
-| GET | `/v2/notifications/{notification_id}` | Get notification details |
-| | **Required:** `notification_id` (path, string) | |
-| POST | `/v2/notifications/{notification_id}/mark-read` | Mark a notification as read |
-| | **Required:** `notification_id` (path, string) | |
-| POST | `/v2/notifications/mark-all-read` | Mark all notifications as read |
-| DELETE | `/v2/notifications/{notification_id}` | Delete a notification |
-| | **Required:** `notification_id` (path, string) | |
-
-#### Profiles
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v2/profiles` | Batch lookup user profiles by IDs |
-| | **Required:** `ids` (query, string — comma-separated profile IDs, max 50) | |
-
-## 4. EXAMPLE PROMPTS
+## 7. EXAMPLE PROMPTS
 
 1. "Publish my latest video to TikTok and Instagram at 3pm EST tomorrow."
 2. "Create a new workspace called 'March Campaign' for my marketing team."
 3. "Send a message to the Spring Launch workspace saying the video is ready for review."
 4. "What's the status of my last launch?"
-5. "List all my workspaces."
-6. "Create a content item in my Product Demos workspace with the title 'New Feature Walkthrough'."
-7. "Show me all pending approvals I need to review."
-8. "Schedule this video to YouTube and LinkedIn for next Monday at 9am PST."
-9. "Check my unread notifications."
-10. "Add jamie@example.com to my content team as an editor."
+5. "Schedule this video to YouTube and LinkedIn for next Monday at 9am PST."
+6. "Add jamie@example.com to my content team as an editor."
+7. "Check my unread notifications."
+8. "List all my workspaces."
+9. "Connect my TikTok account."
+10. "Show me all pending team invitations."
 
-## 5. NOTES
+## 8. NOTES
 
-- A content item requires a `video_id` from an uploaded media file. Upload media first via `/v2/media/upload/request` or `/v2/media/ingest-url`, then reference the returned `media_id` as the `video_id` when creating content.
-- Platform credentials must be connected in JubJub before publishing to that platform. Use `GET /v2/credentials` to check connected accounts. Users connect new platforms via OAuth at jubjubapp.com.
-- A launch requires at least one platform config. Create a content item, then create platform configs linking it to credentials, then create the launch referencing those platform config IDs.
-- Always call `POST /v2/launches/{launch_id}/validate` before executing a launch to verify readiness.
-- The `scheduled_for` datetime in launch creation must include a timezone offset (e.g., `2026-03-15T15:00:00-05:00`). Naive datetimes default to UTC.
-- Each content item maps to one publishing event. To publish the same video with different settings per platform, create separate platform configs on the same content item.
-- Upload sessions (`/v2/uploads/link`) produce a browser URL — the user must open it and upload files manually. Poll `/v2/uploads/sessions/{id}` until groupings are inferred, then use the `video_media_id` from groupings as the `video_id` for content creation.
-- The `platform` field in platform config creation accepts: `youtube`, `instagram`, `tiktok`, `facebook`, `linkedin`, `vimeo`.
-- Agent API keys can be scoped with specific permissions. Check your key's scopes if you receive 403 errors.
+- The `video_id` field in `contents_create` comes from upload session groupings (`video_media_id`) or `media_ingest_url`.
+- `scheduled_for` must include a timezone offset (e.g., `2026-03-15T15:00:00-05:00`). Naive datetimes default to UTC.
+- Upload sessions produce a browser URL — the user must open it to upload. The agent polls `upload_sessions_get` until groupings are ready.
+- `credentials_connect` returns an auth URL — the user must complete OAuth in their browser. The agent polls `credentials_list` to confirm connection.
+- Team roles: OWNER > ADMIN > MANAGER > EDITOR > PUBLISHER > VIEWER.
+- Workspaces are always created unlinked. Use `teams_workspaces_link` to associate a workspace with a team.
+- Profile tools (`profiles_search`, `profiles_get`, `profiles_batch`) resolve human-readable emails to `profile_id` values needed by team and member operations.
+- Free plan workspaces expire after 7 days. Upgrade to Creator or Studio for permanent workspaces.
