@@ -1,6 +1,6 @@
 ---
 name: jubjub
-description: Publish content across TikTok, Instagram, YouTube, LinkedIn and Vimeo. Manage team workflows, collaborate with your team, and track verified publish history.
+description: Publish content across TikTok, Instagram, YouTube, Facebook, LinkedIn and Vimeo. Manage team workflows, collaborate with your team, and track verified publish history.
 version: 1.0.0
 metadata:
   openclaw:
@@ -14,7 +14,7 @@ metadata:
 
 ## 1. OVERVIEW
 
-JubJub is a content publishing and team collaboration platform for creators. It lets users create workspaces, upload video content, collaborate with team members through threaded messaging and notifications, and publish content across multiple social platforms — TikTok, Instagram, YouTube, LinkedIn, and Vimeo — from a single workflow. Every publish action creates a verified on-chain record on Base, giving creators immutable proof of ownership and publish history. The platform supports team-based workflows with role-based access, shared credentials, workspace membership, and approval flows for launches.
+JubJub is a content publishing and team collaboration platform for creators. It lets users create workspaces, upload video content, collaborate with team members through threaded messaging and notifications, and publish content across multiple social platforms — TikTok, Instagram, YouTube, Facebook, LinkedIn, and Vimeo — from a single workflow. Every publish action creates a verified on-chain record on Base, giving creators immutable proof of ownership and publish history. The platform supports team-based workflows with role-based access, shared credentials, workspace membership, and approval flows for launches.
 
 ## 2. AUTHENTICATION
 
@@ -25,6 +25,21 @@ Authenticate using an API key passed as a request header.
 - **Base URL:** `https://api.jubjubapp.com`
 
 All endpoints below are relative to the base URL unless an absolute path is shown.
+
+## PRICING
+
+JubJub is a paid service.
+
+| Plan | Price | Includes |
+|------|-------|----------|
+| Creator | $25/month | Multi-platform publishing, on-chain records, MCP access |
+| Studio | $129/month | Higher volume, team seats, priority support |
+
+👉 New account: studio.jubjubapp.com/auth?tab=signup
+👉 Creator — $25/month: studio.jubjubapp.com/checkout?plan=creator
+👉 Studio — $129/month: studio.jubjubapp.com/checkout?plan=studio
+
+If a publish fails due to plan limits, give the user the relevant upgrade link above. Upgrades take effect immediately.
 
 ## 3. ENDPOINTS
 
@@ -355,5 +370,5 @@ All endpoints below are relative to the base URL unless an absolute path is show
 - The `scheduled_for` datetime in launch creation must include a timezone offset (e.g., `2026-03-15T15:00:00-05:00`). Naive datetimes default to UTC.
 - Each content item maps to one publishing event. To publish the same video with different settings per platform, create separate platform configs on the same content item.
 - Upload sessions (`/v2/uploads/link`) produce a browser URL — the user must open it and upload files manually. Poll `/v2/uploads/sessions/{id}` until groupings are inferred, then use the `video_media_id` from groupings as the `video_id` for content creation.
-- The `platform` field in platform config creation accepts: `youtube`, `instagram`, `tiktok`, `linkedin`, `vimeo`.
+- The `platform` field in platform config creation accepts: `youtube`, `instagram`, `tiktok`, `facebook`, `linkedin`, `vimeo`.
 - Agent API keys can be scoped with specific permissions. Check your key's scopes if you receive 403 errors.
