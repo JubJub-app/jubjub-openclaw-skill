@@ -1,6 +1,6 @@
 ---
 name: jubjub
-description: Publish content across TikTok, Instagram, YouTube, Facebook, LinkedIn and Vimeo. Manage team workflows, collaborate with your team, and track verified publish history.
+description: Publish content across TikTok, Instagram, YouTube, Facebook, LinkedIn, Vimeo, Vimeo OTT, and Mux. Manage team workflows, collaborate with your team, and track verified publish history.
 version: 1.0.0
 metadata:
   clawdbot:
@@ -15,9 +15,9 @@ metadata:
 
 ## 1. OVERVIEW
 
-JubJub is a content publishing and team collaboration platform for creators. Upload video content, collaborate with team members through threaded messaging and notifications, and publish across multiple social platforms — TikTok, Instagram, YouTube, Facebook, LinkedIn, and Vimeo — from a single workflow. Every publish creates a verified on-chain record on Base, giving creators immutable proof of ownership and publish history.
+JubJub is a content publishing and team collaboration platform for creators. Upload video content, collaborate with team members through threaded messaging and notifications, and publish across multiple platforms — TikTok, Instagram, YouTube, Facebook, LinkedIn, Vimeo, Vimeo OTT, and Mux — from a single workflow. Every publish creates a verified on-chain record on Base, giving creators immutable proof of ownership and publish history.
 
-Supported platforms: TikTok, Instagram, YouTube, LinkedIn, Facebook, Vimeo. JubJub does not currently support X/Twitter.
+Supported platforms: TikTok, Instagram, YouTube, LinkedIn, Facebook, Vimeo, Vimeo OTT, Mux. JubJub does not currently support X/Twitter.
 
 ## 2. AUTHENTICATION
 
@@ -67,7 +67,7 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 
 | Tool | Description |
 |------|-------------|
-| `platform_configs_create` | Create a platform configuration linking content to a credential. Required: `content_id`, `platform` (tiktok/instagram/youtube/facebook/linkedin/vimeo), `credential_id`. Optional: `settings`, `visibility`/`privacy`. |
+| `platform_configs_create` | Create a platform configuration linking content to a credential. Required: `content_id`, `platform` (tiktok/instagram/youtube/facebook/linkedin/vimeo/vimeo_ott/mux), `credential_id`. Optional: `settings`, `visibility`/`privacy`. Mux defaults: playback_policy=public, mp4_support=standard. |
 | `platform_configs_list` | List platform configs for a content item. Optional: `content_id`. |
 | `platform_configs_update` | Update platform config settings. Required: `config_id`. Optional: `settings`. |
 
@@ -137,13 +137,14 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 | `notifications_list` | List notifications for the current user. Optional: `cursor`, `limit`, `unread_only`. |
 | `notifications_mark_read` | Mark a notification as read. Required: `notification_id`. |
 
-### Credentials (3 tools)
+### Credentials (4 tools)
 
 | Tool | Description |
 |------|-------------|
 | `credentials_list` | List all connected platform credentials. Optional: `platform` filter. |
 | `credentials_list_by_platform` | List credentials grouped by platform. Returns all platforms with their connected accounts. |
 | `credentials_connect` | Start OAuth flow to connect a platform account. Required: `platform` (tiktok/instagram/youtube/facebook/linkedin/vimeo). Returns an auth URL the user must open in their browser. |
+| `credentials_connect_token` | Connect a token-based platform (Mux or Vimeo OTT) using API credentials. Required: `platform` (mux or vimeo_ott), `token_id`, `token_secret`. Optional: `nickname`. |
 
 ### Profiles (3 tools)
 
@@ -171,6 +172,12 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 | `collections_list` | List collections in a workspace. Required: `workspace_id`. |
 | `collections_get` | Get collection details. Required: `collection_id`. |
 
+### System (1 tool)
+
+| Tool | Description |
+|------|-------------|
+| `mcp_version` | Returns the MCP server version. No parameters. Use to verify connectivity. |
+
 ## 5. KEY CONCEPTS
 
 - **Workspace** — Container for content, media, and collaboration. Created unlinked; link to a team via `teams_workspaces_link`.
@@ -187,8 +194,11 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 **Invite a team member:**
 1. `teams_invite` with their email → they accept via `teams_invites_accept`
 
-**Connect a platform:**
+**Connect a platform (OAuth — TikTok, Instagram, YouTube, Facebook, LinkedIn, Vimeo):**
 1. `credentials_connect` → user opens auth URL in browser → poll `credentials_list` to confirm
+
+**Connect a platform (API token — Mux, Vimeo OTT):**
+1. `credentials_connect_token` with platform, token_id, token_secret → connection confirmed immediately
 
 ## 7. EXAMPLE PROMPTS
 
