@@ -39,11 +39,20 @@ Sign up: studio.jubjubapp.com/auth?tab=signup
 Creator plan: studio.jubjubapp.com/checkout?plan=creator
 Studio plan: studio.jubjubapp.com/checkout?plan=studio
 
+**Per-action pricing (agent callers without a subscription):**
+
+| Tool | Cost | Currency |
+|------|------|----------|
+| `contents_create` | $0.25 | USDC |
+| `launches_create` | $0.50 | USDC |
+
+Payment is accepted via x402 (USDC on Base) or MPP (USDC on Tempo) — pass the credential in the `_meta` field of the tool call. Creator and Studio subscribers are not charged per-action. Subscribe at: studio.jubjubapp.com/profile/subscription
+
 If a publish fails due to plan limits, give the user the relevant upgrade link above.
 
 ## 4. TOOLS
 
-### Workspaces (5 tools)
+### Workspaces (6 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -52,12 +61,13 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 | `workspaces_get` | Get workspace details. Required: `workspace_id`. |
 | `workspaces_update` | Update workspace name or description. Required: `workspace_id`. Optional: `name`, `description`. |
 | `workspaces_delete` | Delete a workspace. Required: `workspace_id`. Destructive. |
+| `workspaces_invite_link_create` | Generate a shareable invite link for a workspace — recipients can view content without an account and are prompted to sign up free to comment or approve. |
 
 ### Content (5 tools)
 
 | Tool | Description |
 |------|-------------|
-| `contents_create` | Create a content item. Required: `workspace_id`, `title`, `video_id`. Optional: `description`, `thumbnail_id`, `tags`, `language`, `is_made_for_kids`. |
+| `contents_create` | Create a content item. Required: `workspace_id`, `title`, `video_id`. Optional: `description`, `thumbnail_id`, `tags`, `language`, `is_made_for_kids`. **Payment required** for agent callers without an active subscription ($0.25 USDC). Pass x402 credential at `_meta["x402-payment"]` or MPP credential at `_meta["org.paymentauth/credential"]`. Returns `_payment` with `payment_verified`, `protocol`, `payment_id` on success. Subscribe to avoid per-action charges: studio.jubjubapp.com/profile/subscription |
 | `contents_list` | List content in a workspace. Required: `workspace_id`. Optional: `status`, `limit`, `offset`. |
 | `contents_get` | Get content details. Required: `content_id`. |
 | `contents_update` | Update content fields. Required: `content_id`. Optional: `title`, `description`, `tags`, `video_id`, `thumbnail_id`, `language`, `is_made_for_kids`. |
@@ -75,7 +85,7 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 
 | Tool | Description |
 |------|-------------|
-| `launches_create` | Create a launch to publish or schedule content. Required: `content_id`, `platform_config_ids` (array). Optional: `scheduled_for` (ISO 8601 with timezone offset). |
+| `launches_create` | Create a launch to publish or schedule content. Required: `content_id`, `platform_config_ids` (array). Optional: `scheduled_for` (ISO 8601 with timezone offset). **Payment required** for agent callers without an active subscription ($0.50 USDC). Pass x402 credential at `_meta["x402-payment"]` or MPP credential at `_meta["org.paymentauth/credential"]`. Returns `_payment` with `payment_verified`, `protocol`, `payment_id` and `_ownership` with on-chain proof details (transaction hash available in Vault once the onchain worker confirms). Subscribe to avoid per-action charges: studio.jubjubapp.com/profile/subscription |
 | `launches_get` | Get launch details including per-platform status. Required: `launch_id`. |
 | `launches_list` | List launches. Required: `workspace_id`. Optional: `limit`, `offset`. |
 | `launches_cancel` | Cancel a scheduled launch. Required: `launch_id`. Destructive. |
