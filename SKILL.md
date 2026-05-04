@@ -11,7 +11,7 @@ metadata:
     primaryEnv: JUBJUB_API_KEY
 ---
 
-# JubJub — SKILL.md
+# JubJub
 
 ## 1. OVERVIEW
 
