@@ -1,7 +1,7 @@
 ---
 name: jubjub
 description: Publish content across TikTok, Instagram, YouTube, Facebook, LinkedIn, Vimeo, Vimeo OTT, and Mux. Manage team workflows, collaborate with your team, and track verified publish history.
-version: 1.0.0
+version: 1.1.0
 metadata:
   clawdbot:
     emoji: "🎬"
@@ -19,13 +19,31 @@ JubJub is a content publishing and team collaboration platform for creators. Upl
 
 Supported platforms: TikTok, Instagram, YouTube, LinkedIn, Facebook, Vimeo, Vimeo OTT, Mux. JubJub does not currently support X/Twitter.
 
-## 2. AUTHENTICATION
+## 2. CONFIRMATION REQUIRED
+
+Several JubJub actions are high-impact, public, destructive, or financial. Before invoking any of the following tools, the agent MUST surface the planned action to the user — including target platforms, visibility, schedule, account, and any cost — and wait for explicit confirmation. Do not chain these actions inside multi-step workflows without a confirmation step.
+
+**Public publishing** (fans out to external platforms, hard to fully undo):
+- `launches_create`, `launches_retry`, `launches_reschedule`
+
+**Destructive** (permanent or hard to reverse):
+- `contents_delete`, `workspaces_delete`, `teams_delete`, `launches_cancel`, `credentials_delete`, `teams_members_remove`, `communication_delete`
+
+**External-facing** (sends email or creates shareable links):
+- `teams_invite`, `workspaces_invite_link_create`
+
+**Financial / on-chain** (mints tokens, transfers value, or charges credits):
+- `catalogue_proposals_accept`, `catalogue_proposals_reject`, `team_splits_set`, `workspace_splits_set`, `register_content_for_revenue`, `generate_platform_key`
+
+For each invocation, confirm: (a) the exact target (platform, account, workspace, content), (b) visibility and schedule where relevant, (c) any associated cost or credit consumption. The user's approval applies to a single invocation only — re-confirm on each call.
+
+## 3. AUTHENTICATION
 
 - **Get your key:** jubjubapp.com → Profile → Agents → Create New Agent
 - **Header:** `X-JubJub-Agent-Key: jjagent_YOUR_KEY`
 - **Base URL:** `https://api.jubjubapp.com`
 
-## 3. PRICING
+## 4. PRICING
 
 JubJub uses a three-tier pricing model. All plans include multi-platform publishing and on-chain records. Publishing and platform access are never restricted by plan.
 
@@ -48,9 +66,9 @@ Studio plan: studio.jubjubapp.com/checkout?plan=studio
 
 Payment is accepted via x402 (USDC on Base) or MPP (USDC on Tempo) — pass the credential in the `_meta` field of the tool call. Creator and Studio subscribers are not charged per-action. Subscribe at: studio.jubjubapp.com/profile/subscription
 
-If a publish fails due to plan limits, give the user the relevant upgrade link above.
+If a publish fails due to plan limits, give the user the relevant upgrade link above. The agent never initiates a payment without user confirmation, even when the smart contract would execute it autonomously.
 
-## 4. TOOLS
+## 5. TOOLS
 
 ### Workspaces (6 tools)
 
@@ -188,7 +206,7 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 |------|-------------|
 | `mcp_version` | Returns the MCP server version. No parameters. Use to verify connectivity. |
 
-## 5. KEY CONCEPTS
+## 6. KEY CONCEPTS
 
 - **Workspace** — Container for content, media, and collaboration. Created unlinked; link to a team via `teams_workspaces_link`.
 - **Content item** — A single publishable piece. One content item maps to one publishing event. Requires a `video_id` from an uploaded file.
@@ -196,10 +214,17 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 - **Launch** — The publish event. Takes a `content_id` and `platform_config_ids`. Can be immediate or scheduled via `scheduled_for`.
 - **On-chain record** — Every launch creates a verified record on Base blockchain for proof of ownership.
 
-## 6. COMMON WORKFLOWS
+## 7. COMMON WORKFLOWS
 
 **Publish a video:**
-1. `workspaces_create` → `upload_sessions_create_link` → user uploads → poll `upload_sessions_get` → `contents_create` with `video_id` from groupings → `platform_configs_create` per platform → `launches_create`
+1. `workspaces_create`
+2. `upload_sessions_create_link`
+3. User uploads
+4. Poll `upload_sessions_get`
+5. `contents_create` with `video_id` from groupings
+6. `platform_configs_create` per platform
+7. **Confirm with the user before publishing.** Surface the target platforms, visibility, schedule, and account to the user. Wait for explicit approval before invoking `launches_create`.
+8. `launches_create`
 
 **Invite a team member:**
 1. `teams_invite` with their email → they accept via `teams_invites_accept`
@@ -210,7 +235,7 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 **Connect a platform (API token — Mux, Vimeo OTT):**
 1. `credentials_connect_token` with platform, token_id, token_secret → connection confirmed immediately
 
-## 7. EXAMPLE PROMPTS
+## 8. EXAMPLE PROMPTS
 
 1. "Publish my latest video to TikTok and Instagram at 3pm EST tomorrow."
 2. "Create a new workspace called 'March Campaign' for my marketing team."
@@ -223,7 +248,16 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 9. "Connect my TikTok account."
 10. "Show me all pending team invitations."
 
-## 8. NOTES
+## 9. COST & CHARGES
+
+Some JubJub actions consume agent credits or trigger on-chain transactions:
+- Publishing (`launches_create`) may incur per-platform fees depending on the user's tier
+- On-chain operations (token minting, revenue registration) consume gas paid by the JubJub treasury but are non-reversible
+- `generate_platform_key` provisions billable infrastructure
+
+Always disclose the cost implication before invoking these tools. Free-tier users have hard caps; surface remaining quota where the API exposes it.
+
+## 10. NOTES
 
 - The `video_id` field in `contents_create` comes from upload session groupings (`video_media_id`) or `media_ingest_url`.
 - `scheduled_for` must include a timezone offset (e.g., `2026-03-15T15:00:00-05:00`). Naive datetimes default to UTC.
