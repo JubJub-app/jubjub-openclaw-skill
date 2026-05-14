@@ -56,9 +56,19 @@ Once installed, try saying to your agent:
 - *"Create a new content item called 'March Campaign'"*
 - *"List all my connected platforms"*
 
+## Pricing
+
+JubJub uses two unrelated pricing models — which one applies depends on who is calling.
+
+**Humans signed in at studio.jubjubapp.com** pay an AUD subscription via Stripe: Free ($0), Creator ($39/mo, or $31/mo on annual at 20% off), or Studio ($199/mo, or $159/mo on annual at 20% off). All plans include unlimited multi-platform publishing, on-chain records, and unmetered tool access. Plans differ in workspace permanence (7 days on Free, permanent on Creator and Studio), storage permanence, and collections.
+
+**Autonomous agents** without a human session pay per action in USDC via x402 (Base) or MPP (Tempo): `contents_create` and `launches_create` are $0.25 each, `get_publish_recommendations` is $0.002, and `get_content_analytics`, `get_platform_comparison`, `get_content_ownership`, `get_content_revenue`, and `get_creator_intelligence` are $0.005 each. Both Creator and Studio subscribers are exempt from per-action charges.
+
+**On-chain gas** is paid by the JubJub treasury — users and agents never pay gas for contract deploys, token mints, publish-ledger writes, or streaming settlement. Streaming revenue is split 97/3 inside the smart contract: 97% to rights holders, 3% to JubJub treasury. This split is immutable on-chain.
+
 ## Requirements
 
-- An active JubJub account ([Creator](https://jubjubapp.com) $25/mo or [Studio](https://jubjubapp.com) $129/mo)
+- An active JubJub account ([free signup](https://studio.jubjubapp.com/auth?tab=signup); paid plans optional)
 - Social platform accounts connected in JubJub before publishing (Profile → Platforms)
 - OpenClaw with any supported LLM (Claude, GPT, DeepSeek)
 

@@ -1,7 +1,7 @@
 ---
 name: jubjub
 description: Publish content across TikTok, Instagram, YouTube, Facebook, LinkedIn, Vimeo, Vimeo OTT, and Mux. Manage team workflows, collaborate with your team, and track verified publish history.
-version: 1.1.0
+version: 1.2.0
 metadata:
   clawdbot:
     emoji: "🎬"
@@ -45,28 +45,44 @@ For each invocation, confirm: (a) the exact target (platform, account, workspace
 
 ## 4. PRICING
 
-JubJub uses a three-tier pricing model. All plans include multi-platform publishing and on-chain records. Publishing and platform access are never restricted by plan.
+JubJub uses two unrelated pricing models. Which one applies depends entirely on who is calling.
 
-| Plan | Price | Key features |
-|------|-------|--------------|
-| Free | $0 | 7-day workspace TTL, files deleted with workspace, no collections, 10 AI calls/min |
-| Creator | $39/month AUD | Permanent workspaces and storage, collections, 60 AI calls/min |
-| Studio | $199/month AUD | Everything in Creator, 300 AI calls/min, team seats, priority support |
+### 4.1 Humans — SaaS subscription (AUD via Stripe)
+
+For humans signed in at studio.jubjubapp.com. All plans include unlimited multi-platform publishing, on-chain records, and unmetered access to every tool. Plans differ in workspace permanence, storage, and collaboration features. Human users never pay per-action USDC fees regardless of plan.
+
+| Plan    | Monthly (AUD) | Annual (AUD/mo) | Workspace TTL | Collections |
+|---------|---------------|------------------|---------------|-------------|
+| Free    | $0            | $0               | 7 days        | No          |
+| Creator | $39           | $31 (20% off)    | Permanent     | Yes         |
+| Studio  | $199          | $159 (20% off)   | Permanent     | Yes         |
 
 Sign up: studio.jubjubapp.com/auth?tab=signup
-Creator plan: studio.jubjubapp.com/checkout?plan=creator
-Studio plan: studio.jubjubapp.com/checkout?plan=studio
+Creator: studio.jubjubapp.com/checkout?plan=creator
+Studio: studio.jubjubapp.com/checkout?plan=studio
 
-**Per-action pricing (agent callers without a subscription):**
+### 4.2 Agents — per-action (USDC via x402 or MPP)
 
-| Tool | Cost | Currency |
-|------|------|----------|
-| `contents_create` | $0.25 | USDC |
-| `launches_create` | $0.50 | USDC |
+For autonomous agents calling the MCP server without a human session. Each priced tool charges a small USDC fee on invocation. Creator AND Studio subscribers are both exempt — pass a session credential and pay nothing per call.
 
-Payment is accepted via x402 (USDC on Base) or MPP (USDC on Tempo) — pass the credential in the `_meta` field of the tool call. Creator and Studio subscribers are not charged per-action. Subscribe at: studio.jubjubapp.com/profile/subscription
+| Tool                          | Cost (USDC) | Rails                      |
+|-------------------------------|-------------|----------------------------|
+| contents_create               | $0.25       | x402, MPP, HTTP            |
+| launches_create               | $0.25       | x402, MPP, HTTP            |
+| get_publish_recommendations   | $0.002      | x402, MPP, HTTP            |
+| get_content_analytics         | $0.005      | x402, MPP, HTTP            |
+| get_platform_comparison       | $0.005      | x402, MPP, HTTP            |
+| get_content_ownership         | $0.005      | x402, MPP, HTTP            |
+| get_content_revenue           | $0.005      | x402, MPP, HTTP            |
+| get_creator_intelligence      | $0.005      | x402, MPP (MCP rail only)  |
 
-If a publish fails due to plan limits, give the user the relevant upgrade link above. The agent never initiates a payment without user confirmation, even when the smart contract would execute it autonomously.
+Payment rails:
+- **x402** — USDC on Base. Credential passed at `_meta["x402-payment"]`.
+- **MPP** — USDC on Tempo. Credential passed at `_meta["org.paymentauth/credential"]`.
+
+All MCP-served priced tools surface both rails via the JSON-RPC -32042 challenge. The HTTP `/v2/paid/{tool}` surface is x402-only and live for every priced tool except `get_creator_intelligence` (HTTP route currently disabled pending an upstream fix).
+
+To bypass per-action pricing entirely, subscribe to Creator or Studio: studio.jubjubapp.com/profile/subscription
 
 ## 5. TOOLS
 
@@ -103,11 +119,32 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 
 | Tool | Description |
 |------|-------------|
-| `launches_create` | Create a launch to publish or schedule content. Required: `content_id`, `platform_config_ids` (array). Optional: `scheduled_for` (ISO 8601 with timezone offset). **Payment required** for agent callers without an active subscription ($0.50 USDC). Pass x402 credential at `_meta["x402-payment"]` or MPP credential at `_meta["org.paymentauth/credential"]`. Returns `_payment` with `payment_verified`, `protocol`, `payment_id` and `_ownership` with on-chain proof details (transaction hash available in Vault once the onchain worker confirms). Subscribe to avoid per-action charges: studio.jubjubapp.com/profile/subscription |
+| `launches_create` | Create a launch to publish or schedule content. Required: `content_id`, `platform_config_ids` (array). Optional: `scheduled_for` (ISO 8601 with timezone offset). **Payment required** for agent callers without an active subscription ($0.25 USDC). Pass x402 credential at `_meta["x402-payment"]` or MPP credential at `_meta["org.paymentauth/credential"]`. Returns `_payment` with `payment_verified`, `protocol`, `payment_id` and `_ownership` with on-chain proof details (transaction hash available in Vault once the onchain worker confirms). Subscribe to avoid per-action charges: studio.jubjubapp.com/profile/subscription |
 | `launches_get` | Get launch details including per-platform status. Required: `launch_id`. |
 | `launches_list` | List launches. Required: `workspace_id`. Optional: `limit`, `offset`. |
 | `launches_cancel` | Cancel a scheduled launch. Required: `launch_id`. Destructive. |
 | `launches_retry` | Retry a failed launch. Required: `launch_id`. Optional: `data` (object). |
+
+### Analytics & Intelligence (8 tools)
+
+| Tool | Description |
+|---|---|
+| get_publish_recommendations | Get personalised data-driven recommendations for a video before publishing, based on the creator's historical performance. Required: content_id. **$0.002 USDC for agent callers without an active subscription.** Pass x402 credential at `_meta["x402-payment"]` or MPP credential at `_meta["org.paymentauth/credential"]`. |
+| get_content_analytics | Retrieve performance analytics for a piece of content across all platforms it was published to. Required: content_id. **$0.005 USDC for agent callers without an active subscription.** |
+| refresh_content_analytics | Trigger a fresh analytics fetch right now for a piece of content, pulling latest stats from all connected platforms. Required: content_id. Free. |
+| get_platform_comparison | Compare performance of a piece of content across every platform it was published to. Required: content_id. **$0.005 USDC for agent callers without an active subscription.** |
+| get_portfolio_analytics | Retrieve aggregated performance analytics across all content a user has published. Free. |
+| get_content_ownership | Get on-chain ownership details for a piece of content — token holders, percentages, contract addresses. Required: content_id. **$0.005 USDC for agent callers without an active subscription.** |
+| get_content_revenue | Get streaming revenue stats for a content item directly from the smart contract. Required: content_id. **$0.005 USDC for agent callers without an active subscription.** |
+| get_creator_intelligence | Retrieve the full content intelligence profile for a creator — personalised patterns derived from their channel history. Required: profile_id. **$0.005 USDC for agent callers without an active subscription. MCP rail only — HTTP route disabled pending upstream fix.** |
+
+### Wallet & Holdings (3 tools)
+
+| Tool | Description |
+|---|---|
+| get_my_tokens | List all content where the current user holds ownership tokens — full token portfolio with percentages and contract addresses. Free. |
+| get_my_claimable | Total claimable USDC balance across all content the user holds tokens for, broken down by content. Reads live from smart contracts on Base. Free. |
+| get_wallet_balance | Current user's total spendable USDC balance — smart wallet balance plus pending claimable. Free. |
 
 ### Teams (14 tools)
 
@@ -248,14 +285,17 @@ If a publish fails due to plan limits, give the user the relevant upgrade link a
 9. "Connect my TikTok account."
 10. "Show me all pending team invitations."
 
-## 9. COST & CHARGES
+## 9. ON-CHAIN ECONOMICS
 
-Some JubJub actions consume agent credits or trigger on-chain transactions:
-- Publishing (`launches_create`) may incur per-platform fees depending on the user's tier
-- On-chain operations (token minting, revenue registration) consume gas paid by the JubJub treasury but are non-reversible
-- `generate_platform_key` provisions billable infrastructure
+These flows are separate from sections 4.1 and 4.2 — neither humans nor agents pay these directly.
 
-Always disclose the cost implication before invoking these tools. Free-tier users have hard caps; surface remaining quota where the API exposes it.
+**Treasury-paid gas.** JubJub pays all on-chain gas from the operator wallet — contract deploys, token mints, wallet registrations, publish-ledger writes (recordLaunch), streaming session create/settle/close, and recovery worker retries. Users and agents never pay gas.
+
+**Immutable 97/3 revenue split.** Streaming revenue is split inside JubJubPaymentRouter on-chain: 97% to the content's rights holders (routed through the content contract and catalogue to token holders), 3% to JubJub treasury. This is enforced in the smart contract and cannot be turned off, renegotiated, or set per content.
+
+**Viewer-paid streaming.** Viewers watching monetised playback pay $0.005 USDC per minute, capped at $2.00 per session, settled to chain every 60 seconds. This is the viewer's spend, not the agent's or the creator's. USDC flows: viewer → Router → content contract → catalogue → token holders, with the 3% treasury slice diverted along the way.
+
+The agent must never initiate any on-chain operation without surfacing the relevant context to the user. The smart contract may execute autonomously once triggered, so user confirmation must happen before invocation, not after.
 
 ## 10. NOTES
 
