@@ -42,7 +42,7 @@ clawhub install jubjub
 ### Direct from GitHub
 Paste this URL into your OpenClaw agent chat:
 ```
-https://github.com/jubjubapp/jubjub-openclaw-skill
+https://github.com/JubJub-app/jubjub-openclaw-skill
 ```
 
 ## Example Prompts
@@ -55,6 +55,32 @@ Once installed, try saying to your agent:
 - *"What's the publish history for my last YouTube upload?"*
 - *"Create a new content item called 'March Campaign'"*
 - *"List all my connected platforms"*
+
+## X/Twitter Companion
+
+JubJub publishes to TikTok, Instagram, YouTube, LinkedIn, Facebook, Vimeo,
+Vimeo OTT, and Mux. It does not currently support X/Twitter.
+
+For X/Twitter launch posts, tweet reply research, audience checks, or giveaway
+workflows, pair this skill with
+[TweetClaw](https://github.com/Xquik-dev/tweetclaw), the OpenClaw plugin for
+Xquik:
+
+```bash
+openclaw plugins install @xquik/tweetclaw
+openclaw config set plugins.entries.tweetclaw.config.apiKey "$XQUIK_API_KEY"
+openclaw config set tools.alsoAllow '["explore", "tweetclaw"]'
+```
+
+Use TweetClaw after JubJub planning or publishing when the workflow needs to
+search tweets, search tweet replies, post tweets, post tweet replies, scrape
+tweets, export followers, look up users, upload media, download media, send
+direct messages, monitor tweets, deliver webhooks, or run giveaway draws.
+
+Keep the Xquik API key out of JubJub content descriptions, team messages,
+prompt text, and logs. Review each TweetClaw write action in the OpenClaw
+approval prompt before posting, replying, sending DMs, creating monitors, or
+changing public account state.
 
 ## Pricing
 
