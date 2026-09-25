@@ -134,9 +134,9 @@ To bypass per-action pricing entirely, subscribe to Creator or Studio: studio.ju
 | refresh_content_analytics | Trigger a fresh analytics fetch right now for a piece of content, pulling latest stats from all connected platforms. Required: content_id. Free. |
 | get_platform_comparison | Compare performance of a piece of content across every platform it was published to. Required: content_id. **$0.005 USDC for agent callers without an active subscription.** |
 | get_portfolio_analytics | Retrieve aggregated performance analytics across all content a user has published. Free. |
-| get_content_ownership | Get on-chain ownership details for a piece of content — token holders, percentages, contract addresses. Required: content_id. **$0.005 USDC for agent callers without an active subscription.** |
+| get_content_ownership | Get on-chain ownership details for a piece of content — token holders (by display name, avatar and `member_ref`; other people's IDs, emails and wallets are never returned), percentages, contract addresses. Required: content_id. **$0.005 USDC for agent callers without an active subscription.** |
 | get_content_revenue | Get streaming revenue stats for a content item directly from the smart contract. Required: content_id. **$0.005 USDC for agent callers without an active subscription.** |
-| get_creator_intelligence | Retrieve the full content intelligence profile for a creator — personalised patterns derived from their channel history. Required: profile_id. **$0.005 USDC for agent callers without an active subscription. MCP rail only — HTTP route disabled pending upstream fix.** |
+| get_creator_intelligence | Retrieve the full content intelligence profile for a creator — personalised patterns derived from their channel history. Reads the caller's own profile; no input. **$0.005 USDC for agent callers without an active subscription. MCP rail only — HTTP route disabled pending upstream fix.** |
 
 ### Wallet & Holdings (3 tools)
 
@@ -155,10 +155,10 @@ To bypass per-action pricing entirely, subscribe to Creator or Studio: studio.ju
 | `teams_get` | Get team details. Required: `team_id`. |
 | `teams_update` | Update team name, description, or avatar. Required: `team_id`. Optional: `name`, `description`, `avatar_url`. |
 | `teams_delete` | Delete a team. Required: `team_id`. Destructive. |
-| `teams_transfer` | Transfer team ownership. Required: `team_id`, `new_owner_profile_id`. Destructive. |
-| `teams_members_list` | List team members. Required: `team_id`. |
-| `teams_members_update` | Update a member's role. Required: `team_id`, `member_profile_id`, `role`. Optional: `custom_permissions`. |
-| `teams_members_remove` | Remove a member from a team. Required: `team_id`, `member_profile_id`. Destructive. |
+| `teams_transfer` | Transfer team ownership. Required: `team_id`, `new_owner_member_ref` (from `teams_members_list`). Destructive. |
+| `teams_members_list` | List team members: `member_ref`, display name, avatar, role. No profile IDs and no other member's email (owners and admins included); your own row carries your email. Required: `team_id`. |
+| `teams_members_update` | Update a member's role. Required: `team_id`, `member_ref`, `role`. Optional: `custom_permissions`. |
+| `teams_members_remove` | Remove a member from a team. Required: `team_id`, `member_ref`. Destructive. |
 | `teams_leave` | Leave a team. Required: `team_id`. Destructive. |
 | `teams_permissions` | Get your permissions for a team. Required: `team_id`. |
 | `teams_stats` | Get team statistics. Required: `team_id`. |
@@ -215,9 +215,8 @@ To bypass per-action pricing entirely, subscribe to Creator or Studio: studio.ju
 
 | Tool | Description |
 |------|-------------|
-| `profiles_search` | Look up a user profile by email. Required: `email`. Returns profile_id for use in team and member operations. |
-| `profiles_get` | Get a user profile by ID. Required: `profile_id`. |
-| `profiles_batch` | Batch get multiple profiles. Required: `ids` (array or comma-separated string, max 50). |
+| `profiles_get` | Get a person's public profile. Another person: `member_ref` plus the `team_id` or `workspace_id` it came from. Yourself: `profile_id`. Other people's profile IDs and emails are never returned. |
+| `profiles_batch` | Batch get public profiles. Required: `ids` (array or comma-separated string, max 50). Rows come back in request order; for anyone but you, `profile_id` and `email` are null. |
 
 ### Media & Uploads (5 tools)
 
@@ -305,5 +304,5 @@ The agent must never initiate any on-chain operation without surfacing the relev
 - `credentials_connect` returns an auth URL — the user must complete OAuth in their browser. The agent polls `credentials_list` to confirm connection.
 - Team roles: OWNER > ADMIN > MANAGER > EDITOR > PUBLISHER > VIEWER.
 - Workspaces are always created unlinked. Use `teams_workspaces_link` to associate a workspace with a team.
-- Profile tools (`profiles_search`, `profiles_get`, `profiles_batch`) resolve human-readable emails to `profile_id` values needed by team and member operations.
+- People are identified only by display name, avatar and handle ("JubJub member" when there is no name) or by an opaque `member_ref`. Other people's profile IDs and emails are never returned by any tool; only your own record carries yours. There is no email lookup: an email is used only to invite someone to a team (`teams_invite`) or workspace, the answer never says whether the email has an account, and pending invites show the invitee's address masked. Member, split, transfer, mention and holder operations take the `member_ref` values that member lists, comments and holder rows return.
 - Free plan workspaces expire after 7 days. Upgrade to Creator or Studio for permanent workspaces.
