@@ -71,7 +71,6 @@ https://github.com/JubJub-app/jubjub-openclaw-skill
 - Using JubJub is free for people. Publishing, analytics, ownership reads, team work and catalogue search are free for agents too.
 - Agents pay per use only to unlock a piece from the catalogue, over x402 (USDC on Base) or MPP (USDC on Tempo). The server quotes the price in its payment challenge before anything is charged.
 - Any account can turn agent discovery and purchase off in its settings.
-- JubJub earns a small fee on settled revenue, when money moves.
 
 ## Requirements
 
