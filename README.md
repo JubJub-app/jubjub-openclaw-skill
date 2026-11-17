@@ -1,23 +1,30 @@
-# JubJub Skill for OpenClaw
+# JubJub skill for OpenClaw
 
-Publish content across multiple platforms, collaborate with your team, and maintain verified publish history — all through your OpenClaw agent.
+One launch to every platform you publish to, and an ownership record for each piece as it goes out. JubJub is media ownership and payment infrastructure, and this skill connects your OpenClaw agent to it over MCP.
 
-## What JubJub Does
+## MCP endpoint
 
-[JubJub](https://jubjubapp.com) is a content publishing and team collaboration platform for creators and media teams. With this skill, your OpenClaw agent can:
+```
+https://api.jubjubapp.com/v2/mcp
+```
 
-- **Publish content** to TikTok, Instagram, YouTube, LinkedIn, and Vimeo
-- **Manage content workflows** — create, update, schedule, and track content items
-- **Collaborate with your team** — send messages, manage workspaces and teams
-- **Track publish history** — every publish action creates a verified record, giving you immutable proof of ownership and distribution
+## What your agent can do
+
+- **Publish** a video to TikTok, Instagram, YouTube, Facebook, LinkedIn, Vimeo, Vimeo OTT, Mux and Farcaster in one launch, now or on a schedule.
+- **Own the record.** When a piece goes out, JubJub writes its ownership record on Base. Your agent can read it and see who holds it.
+- **Follow every destination.** Each launch reports a result per platform, and a failed destination can be sent again.
+- **Search and buy media.** Catalogue search is free. Agents buy a piece's metadata, or the piece itself, per use over x402 or MPP.
+- **Track results** per piece and across your whole catalogue.
+- **Run the team.** Workspaces, versions, reviewers and approvals, comments and share links.
+
+Public, destructive and financial actions always wait for your yes. The skill tells the agent which ones.
 
 ## Setup
 
-1. Go to [jubjubapp.com](https://jubjubapp.com) and create an account
-2. Navigate to **Profile → Agents**
-3. Click **New Agent** and give it a name (e.g. "OpenClaw")
-4. Copy your API key — it starts with `jjagent_`
-5. Add it to your OpenClaw config:
+1. Sign up free at [studio.jubjubapp.com/auth](https://studio.jubjubapp.com/auth).
+2. Go to **Profile**, then **Agents**, and create a new agent (for example "OpenClaw").
+3. Copy its key. It starts with `jjagent_`.
+4. Add it to your OpenClaw config:
 
 ```yaml
 skills:
@@ -26,56 +33,56 @@ skills:
       apiKey: jjagent_YOUR_KEY_HERE
 ```
 
-Or pass it as an environment variable:
+Or set it as an environment variable:
 
 ```bash
 JUBJUB_API_KEY=jjagent_YOUR_KEY_HERE
 ```
 
-## Installation
+5. Connect the platforms you publish to, in JubJub or by asking your agent ("connect my TikTok").
 
-### Via ClawHub CLI
+## Install
+
+### ClawHub
+
 ```bash
 clawhub install jubjub
 ```
 
-### Direct from GitHub
-Paste this URL into your OpenClaw agent chat:
+### From GitHub
+
+Paste this into your OpenClaw chat:
+
 ```
-https://github.com/jubjubapp/jubjub-openclaw-skill
+https://github.com/JubJub-app/jubjub-openclaw-skill
 ```
 
-## Example Prompts
+## Try saying
 
-Once installed, try saying to your agent:
+- "Publish my latest video to Instagram and TikTok."
+- "Schedule this to YouTube and LinkedIn for Monday at 9am."
+- "What happened with my last launch?"
+- "Who holds the ownership record for this video?"
+- "How did my videos do this month?"
+- "Find 3 clips about street food in the JubJub catalogue."
 
-- *"Publish my latest video to Instagram and TikTok"*
-- *"Show me all content in my workspace"*
-- *"Message my team that the edit is ready for review"*
-- *"What's the publish history for my last YouTube upload?"*
-- *"Create a new content item called 'March Campaign'"*
-- *"List all my connected platforms"*
+## How payment works
 
-## Pricing
-
-JubJub uses two unrelated pricing models — which one applies depends on who is calling.
-
-**Humans signed in at studio.jubjubapp.com** pay an AUD subscription via Stripe: Free ($0), Creator ($39/mo, or $31/mo on annual at 20% off), or Studio ($199/mo, or $159/mo on annual at 20% off). All plans include unlimited multi-platform publishing, on-chain records, and unmetered tool access. Plans differ in workspace permanence (7 days on Free, permanent on Creator and Studio), storage permanence, and collections.
-
-**Autonomous agents** without a human session pay per action in USDC via x402 (Base) or MPP (Tempo): `contents_create` and `launches_create` are $0.25 each, `get_publish_recommendations` is $0.002, and `get_content_analytics`, `get_platform_comparison`, `get_content_ownership`, `get_content_revenue`, and `get_creator_intelligence` are $0.005 each. Both Creator and Studio subscribers are exempt from per-action charges.
-
-**On-chain gas** is paid by the JubJub treasury — users and agents never pay gas for contract deploys, token mints, publish-ledger writes, or streaming settlement. Streaming revenue is split 97/3 inside the smart contract: 97% to rights holders, 3% to JubJub treasury. This split is immutable on-chain.
+- Using JubJub is free for people. Publishing, analytics, ownership reads, team work and catalogue search are free for agents too.
+- Agents pay per use only to unlock a piece from the catalogue, over x402 (USDC on Base) or MPP (USDC on Tempo). The server quotes the price in its payment challenge before anything is charged.
+- Any account can turn agent discovery and purchase off in its settings.
+- JubJub earns a small fee on settled revenue, when money moves.
 
 ## Requirements
 
-- An active JubJub account ([free signup](https://studio.jubjubapp.com/auth?tab=signup); paid plans optional)
-- Social platform accounts connected in JubJub before publishing (Profile → Platforms)
-- OpenClaw with any supported LLM (Claude, GPT, DeepSeek)
+- A JubJub account ([sign up free](https://studio.jubjubapp.com/auth))
+- The platforms you publish to, connected in JubJub
+- OpenClaw with any supported model
 
 ## Support
 
-- **Docs:** [jubjubapp.com](https://jubjubapp.com)
-- **Issues:** Open a GitHub issue in this repo
+- **Site:** [jubjubapp.com](https://jubjubapp.com)
+- **Issues:** open a GitHub issue in this repo
 
 ## License
 
