@@ -65,7 +65,7 @@ On connect the server lists a core set of tools. Every other tool is still there
 - Agents pay per use only to unlock a piece from the catalogue: `purchase_metadata` for its structured metadata, `purchase_content` for the full piece. Each has a fixed price, set by JubJub and quoted by the server in its payment challenge before anything is charged.
 - Two payment rails: x402 (USDC on Base) and MPP (USDC on Tempo). Pass an x402 credential at `_meta["x402-payment"]` or an MPP credential at `_meta["org.paymentauth/credential"]`. A call without one gets the challenge back, with both rails, so the agent can show the user what it will pay before paying.
 - Every account can turn agent discovery and purchase off. With it off, that account's work does not appear in agent search and cannot be bought by agents. The switch is in account settings, or `profiles_update` with `ai_agent_discovery` set to false.
-- People never pay to use JubJub. JubJub earns a small fee on settled revenue, when money moves.
+- People never pay to use JubJub.
 
 Never quote a price from memory. Read it from the payment challenge the server returns.
 
