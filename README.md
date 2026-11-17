@@ -57,6 +57,14 @@ Paste this into your OpenClaw chat:
 https://github.com/JubJub-app/jubjub-openclaw-skill
 ```
 
+## Find JubJub in agent directories
+
+- **Official MCP Registry:** [io.github.JubJub-app/jubjub](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.JubJub-app/jubjub)
+- **ClawHub:** [aquaflans/jubjub](https://clawhub.ai/aquaflans/jubjub)
+- **Coinbase x402 Bazaar:** JubJub's paid metadata route is indexed there ([how the Bazaar works](https://docs.cdp.coinbase.com/x402/bazaar))
+- **MCP endpoint:** `https://api.jubjubapp.com/v2/mcp`
+- **All of the above, and how to connect:** [jubjubapp.com/agents/directories](https://jubjubapp.com/agents/directories)
+
 ## Try saying
 
 - "Publish my latest video to Instagram and TikTok."
